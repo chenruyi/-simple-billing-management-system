@@ -60,10 +60,12 @@ bool AddCard(Card card)//增加卡
 	return flag;
 
 }
-bool DeleteCard(char* aName)//注销卡
+bool DeleteCard(Card card_delete)//注销卡
 {
 	bool flag = false;
 	Card card_temp;
+	char *time_end = (char*)malloc(sizeof(char));
+	timeToString(card_delete.tEnd, time_end);
 	const char* path = "card.txt";
 	char rest[512];
 	fstream file(path,ios::in|ios::out);
@@ -78,13 +80,22 @@ bool DeleteCard(char* aName)//注销卡
 	{
 		file.getline(card_temp.aName, NAME_MAX, '\t');
 		
-		if (strcmp(card_temp.aName, aName) == 0)
+		if (strcmp(card_temp.aName, card_delete.aName) == 0)
 		{
 			file.getline(card_temp.aPwd, PSD_MAX, '\t');
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
-			file << 2;//注销,card->nstatus=2	
-			file.flush();		
+			file << 2<<flush;//注销,card->nstatus=2	
+			file.ignore(20, '\t');//跳过card->fbalance
+			file.ignore(20, '\t');//跳过card->famount
+			file.ignore(20, '\t');//跳过card->nusecount
+			file.ignore(20, '\t');//跳过card->ndel
+			file.ignore(20, '\t');//跳过card->start
+			file.ignore(20, '\t');//跳过card->last
+
+			file.seekp(1, ios::cur);
+			file.seekp(-1, ios::cur);
+			file << time_end << flush;//注销,card->nstatus=2		
 			flag = true;
 			break;
 		}

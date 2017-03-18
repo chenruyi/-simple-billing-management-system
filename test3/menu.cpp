@@ -13,6 +13,7 @@
 #include "time_string.h"
 #include"login_outservice.h"
 #include"billingservice.h"
+#include"deposit_return_service.h"
 using namespace std;
 //--------1.添加卡---------
 void AddCard_Menu(void) {
@@ -108,6 +109,8 @@ void On_comp_Menu()
 		if (card->fBalance > 0)
 		{
 			cout << "账户余额为" << card->fBalance << endl;
+			card->nUseCount++;//使用次数加1；
+			card->tLast = time(NULL);//获得上机时间
 			if (login(*card))
 			{
 				cout << "上机成功！！欢迎使用！！" << endl;
@@ -162,6 +165,7 @@ void Off_comp_Menu()
 		}
 		else
 		{
+			card->tLast = time(NULL);//获得下机时间
 			card->fBalance = card->fBalance - paymoney;
 			
 			if (logout(*card))// 退出成功
@@ -184,22 +188,34 @@ void Off_comp_Menu()
 void Deposit_Menu()
 {
 	Card *card = (Card*)malloc(sizeof(Card));
-	int deposit_money;//充值金额
-	double balance = 100.0;//余额
+	float deposit_money;//充值金额
 	cout << "---------充值---------" << endl;
 	cout << "请输入充值的卡号：";
 	cin >> card->aName;
 	cout << "请输入充值的金额：";
 	cin >> deposit_money;
-
-	if (true)	//充值成功
+	card = SelectCard(card->aName);
+	if (card == NULL)
 	{
-		cout << "充值成功，余额为：" << balance << endl;;
+		cout << "该卡不存在，请检查后再次充值；" << endl;
 	}
-	else
+	else 	
 	{
-		cout << "充值失败" << endl;
+		if (Deposit(*card, deposit_money))
+		{
+			card = SelectCard(card->aName);
+			cout << "充值成功！" << endl;
+			cout<< "卡号\t状态\t余额\t使用次数\t" << "\n"
+				<< card->aName << "\t" << card->nStatus << "\t"
+				<< card->fBalance << "\t" << card->nUseCount << "\t\t"
+				<< endl;
+		}
+		else
+		{
+			cout << "充值失败" << endl;
+		}
 	}
+	
 }
 
 //---------6.退费----------
@@ -210,21 +226,29 @@ void Return_Menu()
 	cout << "----------退费----------" << endl;
 	cout << "请输入卡号：" << endl;
 	cin >> card->aName;
-	if (true) //卡号存在
+	card = SelectCard(card->aName);
+	if (card==NULL) //卡号不存在
 	{
-		cout << "退费金额：" << return_money << endl;
-		if (true)//退费成功
-		{
-			cout << "退费成功。" << endl;
-		}
-		else
-		{
-			cout << "退费失败！" << endl;
-		}
+		cout << "卡号不存在！" << endl;
 	}
 	else
 	{
-		cout << "卡号不存在！" << endl;
+		cout << "当前余额为：" << card->fBalance << "元" << endl;
+		if (card->fBalance > 0)
+		{
+			if (Return(*card))
+			{
+				cout << "退费成功" << endl;
+			}
+			else
+			{
+				cout << "退费失败" << endl;
+			}
+		}
+		else
+		{
+			cout << "余额为负数，请充值！！" << endl;
+		}
 	}
 }
 
@@ -256,7 +280,8 @@ void Delete_Menu()
 			if (card->fBalance>=0)	//余额>=0
 			{
 				cout << "该卡号余额为：" << card->fBalance << endl;
-				if (DeleteCard(card->aName))//注销卡
+				card->tEnd = time(NULL);
+				if (DeleteCard(*card))//注销卡
 				{
 					cout << "注销卡成功！！" << endl;
 				}

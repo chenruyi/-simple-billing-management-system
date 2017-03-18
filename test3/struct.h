@@ -16,7 +16,7 @@ typedef struct Card
 	int nDel;		//删除标志（0-未删除；1-删除）
 
 	time_t tStart;	//开卡时间
-	time_t tEnd;	//截至时间
+	time_t tEnd;	//截至时间,注销卡的时间
 	time_t tLast;	//最后使用时间
 
 }Card;

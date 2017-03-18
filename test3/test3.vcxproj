@@ -149,6 +149,7 @@
     <ClInclude Include="billingservice.h" />
     <ClInclude Include="cardservice.h" />
     <ClInclude Include="cardservice_doc.h" />
+    <ClInclude Include="deposit_return_service.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="login_outservice.h" />
     <ClInclude Include="menu.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="billingservice.cpp" />
     <ClCompile Include="cardservice.cpp" />
     <ClCompile Include="cardservice_doc.cpp" />
+    <ClCompile Include="deposit_return_service.cpp" />
     <ClCompile Include="login_outservice.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="test3.cpp" />
