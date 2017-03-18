@@ -2,6 +2,6 @@
 #define  LOGIN_OUT_H
 #include"struct.h"
 bool login(Card cardin);
-Card* logout(Card cardout);
+bool logout(Card &cardout);
 
 #endif

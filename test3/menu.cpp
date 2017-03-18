@@ -162,8 +162,9 @@ void Off_comp_Menu()
 		}
 		else
 		{
-			card = logout(*card);
-			if (card != NULL)// 退出成功
+			card->fBalance = card->fBalance - paymoney;
+			
+			if (logout(*card))// 退出成功
 			{
 				cout << "退出成功！！" << '\n'
 					<< "本次缴费：" << paymoney << "元"

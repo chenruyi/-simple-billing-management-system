@@ -38,11 +38,13 @@ bool login(Card cardin)
 	return flag;
 }
 
-Card * logout(Card cardout)
+bool logout(Card &cardout)
 {
+	Card *card_temp = (Card *)malloc(sizeof(Card));
 	bool flag = false;
 	const char* path = "card.txt";
-	Card card_temp;
+
+	card_temp = &cardout;
 	char rest[512];
 	fstream file(path, ios::in | ios::out);
 	file.seekg(0);
@@ -54,11 +56,11 @@ Card * logout(Card cardout)
 	}
 	while (!file.eof())
 	{
-		file.getline(card_temp.aName, NAME_MAX, '\t');
+		file.getline(card_temp->aName, NAME_MAX, '\t');
 
-		if (strcmp(card_temp.aName, cardout.aName) == 0)
+		if (strcmp(card_temp->aName, cardout.aName) == 0)
 		{
-			file.getline(card_temp.aPwd, PSD_MAX, '\t');
+			file.getline(card_temp->aPwd, PSD_MAX, '\t');
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
 			file << 0;//об╩З,card->ndel=0	
@@ -69,5 +71,5 @@ Card * logout(Card cardout)
 		file.getline(rest, 512, '\n');
 	}
 	file.close();
-	return &card_temp;
+	return flag;
 }
