@@ -1,8 +1,10 @@
 #include "login_outservice.h"
 #include"global.h"
 #include"time_string.h"
+#include"writeusinginfo.h"
 #include<iostream>
 #include <fstream>
+#include<iomanip>
 using namespace std;
 bool login(Card cardin)
 {
@@ -31,8 +33,7 @@ bool login(Card cardin)
 			file.getline(card_temp.aPwd, PSD_MAX, '\t');
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
-			file << 1;//上机,card->ndel=1
-			file.flush();
+			file << 1<<flush;//上机,card->ndel=1
 			//使用次数+1；
 			file.ignore(2, '\t');//跳过'\t'
 			file.ignore(10, '\t');//跳过card->Bbalance
@@ -43,8 +44,8 @@ bool login(Card cardin)
 			//file.getline(usecount, 10, '\t');
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
-			file << cardin.nUseCount;//更新使用次数
-			file.flush();
+			file << cardin.nUseCount<<flush;//更新使用次数
+	
 			file.ignore(2, '\t');//跳过'\t'
 			file.ignore(2, '\t');//跳过card->ndel
 			//file.getline(ndel, 2, '\t');
@@ -53,7 +54,7 @@ bool login(Card cardin)
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
 			timeToString(cardin.tLast, time_last);
-			file << time_last;
+			file << time_last<<flush;
 			//上次使用时间更新；
 			file.flush();
 			flag = true;
@@ -62,6 +63,12 @@ bool login(Card cardin)
 		file.getline(rest, 512, '\n');
 	}
 	file.close();
+	usingInfo info;
+	strcpy_s(info.aName, cardin.aName);
+	info.operatekind = O_login;//上机
+	info.fBalance = cardin.fBalance;
+	info.operate_time = cardin.tLast;
+	writeusinginfo(info);
 	return flag;
 }
 
@@ -97,7 +104,7 @@ bool logout(Card &cardout)
 			file.ignore(2, '\t');//跳过'\t'
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
-			file << cardout.fBalance;
+			file << setiosflags(ios::fixed) << setprecision(2) << cardout.fBalance;
 			file.flush();
 			file.ignore(10, '\t');//跳过card->Bbalance
 			//file.getline(balance, sizeof(float), '\t');
@@ -125,5 +132,11 @@ bool logout(Card &cardout)
 		file.getline(rest, 512, '\n');
 	}
 	file.close();
+	usingInfo info;
+	strcpy_s(info.aName, cardout.aName);
+	info.operatekind = O_logout;//下机
+	info.fBalance = cardout.fBalance;
+	info.operate_time = cardout.tLast;
+	writeusinginfo(info);
 	return flag;
 }

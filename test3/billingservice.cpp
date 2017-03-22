@@ -13,7 +13,7 @@ float PayFee(Card card)
 	localtime_s(&tm_on, &time_on);
 	struct tm tm_down;
 	localtime_s(&tm_down, &time_down);
-	ustime_min = (tm_down.tm_year - tm_on.tm_year) * 365 * 24 + (tm_down.tm_yday - tm_on.tm_yday) * 24 +
+	ustime_min = (tm_down.tm_year - tm_on.tm_year) * 365 * 24*60 + (tm_down.tm_yday - tm_on.tm_yday) * 24 +
 		(tm_down.tm_hour - tm_on.tm_hour) + (tm_down.tm_min - tm_on.tm_min)*(1.0 / 60);
 
 	if (tm_on.tm_wday == 0 || tm_on.tm_wday == 6)

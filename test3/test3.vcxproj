@@ -153,6 +153,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="login_outservice.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="statistic.h" />
     <ClInclude Include="struct.h" />
     <ClInclude Include="time_string.h" />
     <ClInclude Include="writeusinginfo.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="deposit_return_service.cpp" />
     <ClCompile Include="login_outservice.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="statistic.cpp" />
     <ClCompile Include="test3.cpp" />
     <ClCompile Include="time_string.cpp" />
     <ClCompile Include="writeusinginfo.cpp" />

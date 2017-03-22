@@ -14,6 +14,8 @@
 #include"login_outservice.h"
 #include"billingservice.h"
 #include"deposit_return_service.h"
+#include"statistic.h"
+#include <iomanip>
 using namespace std;
 //--------1.添加卡---------
 void AddCard_Menu(void) {
@@ -52,7 +54,7 @@ void AddCard_Menu(void) {
 void SelectCard_Menu() {
 	char aName[NAME_MAX];//卡号
 	Card* card ;
-	Card card_[CARD_USINGMAX] = { NULL };
+	
 	int n = 0;
 	cout << "----------查询卡----------" << endl;
 	cout << "请输入卡号：";
@@ -61,18 +63,15 @@ void SelectCard_Menu() {
 	card = SelectCard(aName);
 	if (card != NULL)//&&n!=0)
 	{
-		/*	for (int i = 0; i < n; i++,card++)
-		{*/
 		char Lasttime[TIMELENGTH] ;
 		timeToString(card->tLast, Lasttime);
 		int j = 0;
 		cout << "查询结果：" << "\n"
 			<< "卡号\t状态\t余额\t使用次数\t上次使用时间" << "\n"
 			<< card->aName << "\t" << card->nStatus << "\t"
-			<< card->fBalance << "\t" << card->nUseCount << "\t\t"
+			<< setiosflags(ios::fixed) << setprecision(2) << card->fBalance << "\t"
+			<< card->nUseCount << "\t\t"
 			<< Lasttime << endl;
-
-		//}
 	}
 	else {
 		cout << "未查到！！" << endl;
@@ -83,14 +82,21 @@ void SelectCard_Menu() {
 void On_comp_Menu()
 {
 	Card *card = (Card*)malloc(sizeof(Card));
-
+	char card_name[NAME_MAX];
+	char card_psw[PSD_MAX];
 	cout << "----------上机----------" << endl;
 	cout << "请输入卡号：";
-	cin >> card->aName;
-	card = SelectCard(card->aName);
+	cin >> card_name;
+	cout << "请输入密码：";
+	cin >> card_psw;
+	card = SelectCard(card_name);
 	if (card == NULL)
 	{
 		cout << "未找到该卡信息" << endl;
+	}
+	else if (strcmp(card->aPwd,card_psw)!=0)
+	{
+		cout << "密码不匹配" << endl;
 	}
 	else if (card->nStatus == 1)
 	{
@@ -108,7 +114,8 @@ void On_comp_Menu()
 	{
 		if (card->fBalance > 0)
 		{
-			cout << "账户余额为" << card->fBalance << endl;
+			cout << "账户余额为:" 
+				<< setiosflags(ios::fixed) << setprecision(2) << card->fBalance << endl;
 			card->nUseCount++;//使用次数加1；
 			card->tLast = time(NULL);//获得上机时间
 			if (login(*card))
@@ -133,11 +140,13 @@ void On_comp_Menu()
 void Off_comp_Menu()
 {
 	Card *card = (Card*)malloc(sizeof(Card));
+	char card_name[NAME_MAX];
 	float paymoney = -1;
 	cout << "----------下机----------" << endl;
 	cout << "请输入卡号：";
-	cin >> card->aName;
-	card = (SelectCard(card->aName));
+	cin >> card_name;
+	
+	card = (SelectCard(card_name));
 	if (card == NULL)
 	{
 		cout << "未找到该卡信息" << endl;
@@ -160,7 +169,8 @@ void Off_comp_Menu()
 		if (card->fBalance < paymoney)
 		{
 			cout << "余额不足,请充值！！" << '\n'
-				<< "账户余额：" << card->fBalance << "元" << '\n'
+				<< "账户余额：" 
+				<< setiosflags(ios::fixed) << setprecision(2) << card->fBalance << "元" << '\n'
 				<< "本次需交费：" << paymoney << "元" << endl;
 		}
 		else
@@ -171,8 +181,10 @@ void Off_comp_Menu()
 			if (logout(*card))// 退出成功
 			{
 				cout << "退出成功！！" << '\n'
-					<< "本次缴费：" << paymoney << "元"
-					<< "账户余额：" << card->fBalance << "元" << "\n"
+					<< "本次缴费：" << setiosflags(ios::fixed) << setprecision(2)
+					<< paymoney << "元"
+					<< "账户余额：" << setiosflags(ios::fixed) << setprecision(2)
+					<< card->fBalance << "元" << "\n"
 					<< "欢迎下次使用！！" << endl;
 			}
 			else
@@ -207,7 +219,8 @@ void Deposit_Menu()
 			cout << "充值成功！" << endl;
 			cout<< "卡号\t状态\t余额\t使用次数\t" << "\n"
 				<< card->aName << "\t" << card->nStatus << "\t"
-				<< card->fBalance << "\t" << card->nUseCount << "\t\t"
+				<< setiosflags(ios::fixed) << setprecision(2) << card->fBalance << "\t" 
+				<< card->nUseCount << "\t\t"
 				<< endl;
 		}
 		else
@@ -222,18 +235,38 @@ void Deposit_Menu()
 void Return_Menu()
 {
 	Card *card = (Card*)malloc(sizeof(Card));
-	int return_money = 0;//退费金额
+	char card_name[NAME_MAX];
+	char card_psw[PSD_MAX];
 	cout << "----------退费----------" << endl;
-	cout << "请输入卡号：" << endl;
-	cin >> card->aName;
-	card = SelectCard(card->aName);
-	if (card==NULL) //卡号不存在
+	cout << "请输入卡号：";
+	cin >> card_name;
+	cout << "请输入密码：";
+	cin >> card_psw;
+	card = SelectCard(card_name);
+	if (card == NULL)
 	{
-		cout << "卡号不存在！" << endl;
+		cout << "未找到该卡信息" << endl;
+	}
+	else if (strcmp(card->aPwd, card_psw) != 0)
+	{
+		cout << "密码不匹配" << endl;
+	}
+	else if (card->nStatus == 1)
+	{
+		cout << "该卡正在上机" << endl;
+	}
+	else if (card->nStatus == 2)
+	{
+		cout << "该卡已注销" << endl;
+	}
+	else if (card->nStatus == 3)
+	{
+		cout << "该卡已失效" << endl;
 	}
 	else
 	{
-		cout << "当前余额为：" << card->fBalance << "元" << endl;
+		cout << "当前余额为："
+			<< setiosflags(ios::fixed) << setprecision(2) << card->fBalance << "元" << endl;
 		if (card->fBalance > 0)
 		{
 			if (Return(*card))
@@ -255,10 +288,37 @@ void Return_Menu()
 //---------7.查询统计-------
 void Statistic_Menu()
 {
+	int choice;
 	cout << "---------查询统计-------" << "\n"
-		<< "1. 月销售总额" << "\n"
-		<< "2. ……"
+		<< "1. 消费总额" << "\n"
+		<< "2. 卡总数"<<"\n"
+		<< "3. 消费总额最高的卡"
 		<< endl;
+	cin >> choice;
+	switch (choice)	
+	{
+		case 1:
+		{
+			float summoney;//消费总额
+			summoney=S_Sumpay();//查询消费总额
+			cout << "消费总额为：" 
+				<< setiosflags(ios::fixed) << setprecision(2) << summoney << "元" << endl;
+			break;
+		}
+		case 2:
+		{
+			int cardnum;//卡总数
+			S_CardNum(cardnum);
+			cout << "卡总数为：" << cardnum << endl;
+			break;
+		}
+		default:
+		{
+			cout << "所选不存在！！" << endl;
+			break;
+		}
+	}
+
 }
 
 //---------8.注销卡--------
@@ -270,7 +330,23 @@ void Delete_Menu()
 	cout << "请输入注销的卡号：";
 	cin >> card->aName;
 	card = SelectCard(card->aName);
-	if (card != NULL)	//若卡号存在
+	if (card == NULL)
+	{
+		cout << "未找到该卡信息" << endl;
+	}
+	else if (card->nStatus == 1)
+	{
+		cout << "该卡正在上机" << endl;
+	}
+	else if (card->nStatus == 2)
+	{
+		cout << "该卡已注销" << endl;
+	}
+	else if (card->nStatus == 3)
+	{
+		cout << "该卡已失效" << endl;
+	}
+	else 
 	{
 		cout << "请确认注销卡号：" << card->aName <<"(y/n)：";
 		char choice;
@@ -293,14 +369,6 @@ void Delete_Menu()
 			else		//余额<0
 			{
 				cout << "该卡号欠费：" << balance << "请交费！！" << endl;
-				//if (true)//缴费成功
-				//{
-				//	cout << "缴费成功！！" << endl;
-				//}
-				//else
-				//{
-				//	cout << "缴费失败！！" << endl;
-				//}
 			}
 		}
 		else	//取消操作
@@ -309,10 +377,7 @@ void Delete_Menu()
 		}
 
 	}
-	else
-	{
-		cout << "该卡号不存在！！请检查！！" << endl;
-	}
+	
 }
 
 //---------0.退出---------

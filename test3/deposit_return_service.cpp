@@ -1,8 +1,10 @@
 #include "deposit_return_service.h"
 #include"global.h"
 #include <iostream>
+#include<iomanip>
 #include<fstream>
 #include"time_string.h"
+#include"writeusinginfo.h"
 using namespace std;
 bool Deposit(Card card_deposit, float deposit_money)
 {
@@ -26,42 +28,38 @@ bool Deposit(Card card_deposit, float deposit_money)
 		if (strcmp(card_temp->aName, card_deposit.aName) == 0)
 		{
 			file.ignore(10,'\t');//跳过card->nPsw
-			//file.getline(card_temp.aPwd, PSD_MAX, '\t');
-			//file.seekp(1, ios::cur);
-			//file.seekp(-1, ios::cur);
-			//file << 1;//上机,card->ndel=1
-			//file.flush();
+		
 			file.ignore(3, '\t');//跳过card->nstatus
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
-			file << card_deposit.fBalance + deposit_money<<flush;
+			file << setiosflags(ios::fixed) << setprecision(2)
+				<< card_deposit.fBalance + deposit_money<<flush;
 			file.ignore(2, '\t');//跳过'\t'
-			//file.getline(balance, sizeof(float), '\t');
-			//file.getline(amount, sizeof(float), '\t');
-			//file << cardin.fAmount;
+		
 			file.ignore(10, '\t');//跳过使用总额card->fAmount
-			//file.getline(usecount, 10, '\t');
-			//file.seekp(1, ios::cur);
-			//file.seekp(-1, ios::cur);
-			//file << card_deposit.nUseCount;//更新使用次数
-			//file.flush();
+			
 			file.ignore(10, '\t');//跳过card->nUsecount
 			file.ignore(3, '\t');//跳过card->ndel
-			//file.getline(ndel, 2, '\t');
+			
 			file.ignore(TIMELENGTH, '\t');//跳过card->tstart
-			//file.getline(time_start, TIMELENGTH, '\t');
+			
 			file.seekp(1, ios::cur);
 			file.seekp(-1, ios::cur);
 			timeToString(card_deposit.tLast, time_last);
 			file << time_last<<flush;
 			//上次使用时间更新；
-			file.flush();
 			flag = true;
 			break;
 		}
 		file.getline(rest, 512, '\n');
 	}
 	file.close();
+	usingInfo info;
+	strcpy_s(info.aName, card_deposit.aName);
+	info.operatekind = O_deposit;//充值卡
+	info.fBalance = card_deposit.fBalance;
+	info.operate_time = card_deposit.tLast;
+	writeusinginfo(info);
 	return flag;
 }
 
@@ -105,12 +103,17 @@ bool Return(Card card_return)
 			timeToString(card_return.tLast, time_last);
 			file << time_last << flush;
 			//上次使用时间更新；
-			file.flush();
 			flag = true;
 			break;
 		}
 		file.getline(rest, 512, '\n');
 	}
 	file.close();
+	usingInfo info;
+	strcpy_s(info.aName, card_return.aName);
+	info.operatekind = O_return;//退费
+	info.fBalance = card_return.fBalance;
+	info.operate_time = card_return.tLast;
+	writeusinginfo(info);
 	return flag;
 }

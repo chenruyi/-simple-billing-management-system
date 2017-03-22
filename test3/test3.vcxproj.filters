@@ -45,6 +45,9 @@
     <ClInclude Include="deposit_return_service.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="statistic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="time_string.cpp">
@@ -72,6 +75,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="deposit_return_service.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="statistic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

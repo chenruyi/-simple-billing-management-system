@@ -4,6 +4,7 @@
 #include "time_string.h"
 #include"writeusinginfo.h"
 #include <fstream>
+#include <iomanip>
 #include"global.h"
 using namespace std;
 bool AddCard(Card card)//增加卡
@@ -39,15 +40,17 @@ bool AddCard(Card card)//增加卡
 	timeToString(card.tLast, time_last);
 	fin.close();
 	fout << card.aName << '\t' << card.aPwd << '\t'
-		<< card.nStatus << '\t' << card.fBalance << '\t'
-		<< card.fAmount << '\t' << card.nUseCount << '\t'
+		<< card.nStatus << '\t' 
+		<< setiosflags(ios::fixed) << setprecision(2) << card.fBalance << '\t'
+		<< setiosflags(ios::fixed) << setprecision(2) << card.fAmount << '\t'
+		<< card.nUseCount << '\t'
 		<< card.nDel << '\t' << time_start << '\t'
-		<< time_last << '\t' << time_end << '\n';
+		<< time_last << '\t' << time_end << '\n'<<flush;
 	fout.close();	
 	usingInfo info;
 	strcpy_s(info.aName, card.aName);
 	info.fBalance = card.fBalance;
-	info.nStatus = card.nStatus;
+	info.operatekind = O_addcard;//增加卡
 	info.operate_time = card.tLast;
 	if (writeusinginfo(info))
 	{
@@ -64,7 +67,7 @@ bool DeleteCard(Card card_delete)//注销卡
 {
 	bool flag = false;
 	Card card_temp;
-	char *time_end = (char*)malloc(sizeof(char));
+	char time_end [TIMELENGTH];
 	timeToString(card_delete.tEnd, time_end);
 	const char* path = "card.txt";
 	char rest[512];
@@ -102,6 +105,12 @@ bool DeleteCard(Card card_delete)//注销卡
 		file.getline(rest, 512, '\n');
 	}
 	file.close();
+	usingInfo info;
+	strcpy_s(info.aName ,card_delete.aName);
+	info.operatekind = O_delete;//注销卡
+	info.fBalance = card_delete.fBalance;
+	info.operate_time = card_delete.tEnd;
+	writeusinginfo(info);
 	return flag;
 }
 Card *SelectCard(char *aName) {
